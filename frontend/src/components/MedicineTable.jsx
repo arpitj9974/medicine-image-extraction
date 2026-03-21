@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Search, CheckCircle2, AlertTriangle, AlertCircle, FileImage, ExternalLink, Calendar, Hash } from 'lucide-react';
+import { Search, CheckCircle2, AlertTriangle, AlertCircle, FileImage, ExternalLink, Calendar, Hash, ChevronLeft, ChevronRight } from 'lucide-react';
 import Loader from './Loader';
 
 const StatusBadge = ({ status }) => {
@@ -23,15 +23,30 @@ const StatusBadge = ({ status }) => {
 
 const MedicineTable = ({ medicines, loading }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
+  // ─── Search Logic ───
   const filteredMedicines = medicines.filter(med => {
     const nameMatch = (med.medicine_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     const batchMatch = (med.batch_number || '').toLowerCase().includes(searchTerm.toLowerCase());
     return nameMatch || batchMatch;
   });
 
+  // ─── Pagination Logic ───
+  const totalPages = Math.ceil(filteredMedicines.length / recordsPerPage);
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredMedicines.slice(indexOfFirstRecord, indexOfLastRecord);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Smooth scroll to top of table on page change
+    window.scrollTo({ top: document.getElementById('saved-records')?.offsetTop - 100, behavior: 'smooth' });
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden ring-1 ring-slate-100 flex flex-col">
+    <div id="saved-records" className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden ring-1 ring-slate-100 flex flex-col scroll-mt-24">
       
       {/* Premium Table Header Area */}
       <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 bg-white">
@@ -49,7 +64,10 @@ const MedicineTable = ({ medicines, loading }) => {
             className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm font-medium"
             placeholder="Search by name or batch..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+               setSearchTerm(e.target.value);
+               setCurrentPage(1); // Reset to page 1 on search
+            }}
           />
         </div>
       </div>
@@ -66,103 +84,148 @@ const MedicineTable = ({ medicines, loading }) => {
           <p className="text-slate-500 font-medium">No records found matching your search.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                <th className="p-4 pl-6 md:pl-8 font-semibold w-24">Image</th>
-                <th className="p-4 font-semibold min-w-[200px]">Medicine Name</th>
-                <th className="p-4 font-semibold min-w-[160px]">Batch & Expiry</th>
-                <th className="p-4 font-semibold">Price</th>
-                <th className="p-4 pr-6 md:pr-8 font-semibold text-right">Status & Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {filteredMedicines.map((med) => (
-                <tr key={med._id} className="hover:bg-blue-50/30 transition-colors group">
-                  
-                  {/* Image Column */}
-                  <td className="p-4 pl-6 md:pl-8 align-middle">
-                    <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shadow-sm shrink-0">
-                      {med.image_url ? (
-                        <a href={`http://localhost:3000${med.image_url}`} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
-                          <img 
-                            src={`http://localhost:3000${med.image_url}`} 
-                            alt="Medicine Thumbnail" 
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                          <div className="hidden absolute inset-0 w-full h-full bg-slate-100 flex-col items-center justify-center text-slate-400">
-                             <FileImage size={20} />
-                          </div>
-                        </a>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-300">
-                          <FileImage size={20} />
-                        </div>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Medicine Name Column */}
-                  <td className="p-4 align-middle">
-                    <div className="flex flex-col">
-                      {med.medicine_name ? (
-                        <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{med.medicine_name}</span>
-                      ) : (
-                        <span className="font-medium text-slate-400 italic">Not extracted</span>
-                      )}
-                      <span className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider flex items-center gap-1">
-                        ID: {med._id.substring(med._id.length - 6)}
-                      </span>
-                    </div>
-                  </td>
-
-                  {/* Batch & Expiry Stack */}
-                  <td className="p-4 align-middle">
-                    <div className="flex flex-col gap-2">
-                       <div className="flex items-center gap-2">
-                          <Hash size={14} className="text-slate-400" />
-                          <span className="text-sm font-semibold text-slate-700">{med.batch_number || <span className="text-slate-300 italic">N/A</span>}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                          <Calendar size={14} className="text-slate-400" />
-                          <span className="text-sm font-semibold text-slate-700">{med.expiry_date || <span className="text-slate-300 italic">N/A</span>}</span>
-                       </div>
-                    </div>
-                  </td>
-
-                  {/* Price Column */}
-                  <td className="p-4 align-middle">
-                    {med.price ? (
-                       <span className="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md shadow-sm">
-                         <span className="text-emerald-500 text-xs">₹</span>
-                         {med.price}
-                       </span>
-                    ) : (
-                       <span className="text-slate-400 italic font-medium text-sm">N/A</span>
-                    )}
-                  </td>
-
-                  {/* Status & Date Column */}
-                  <td className="p-4 pr-6 md:pr-8 align-middle text-right">
-                    <div className="flex flex-col items-end gap-1.5">
-                      <StatusBadge status={med.extraction_status} />
-                      <span className="text-xs font-semibold text-slate-400">
-                        {format(new Date(med.createdAt), 'MMM dd, yyyy • HH:mm')}
-                      </span>
-                    </div>
-                  </td>
-
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                  <th className="p-4 pl-6 md:pl-8 font-semibold w-24">Image</th>
+                  <th className="p-4 font-semibold min-w-[200px]">Medicine Name</th>
+                  <th className="p-4 font-semibold min-w-[160px]">Batch & Expiry</th>
+                  <th className="p-4 font-semibold">Price</th>
+                  <th className="p-4 pr-6 md:pr-8 font-semibold text-right">Status & Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {currentRecords.map((med) => (
+                  <tr key={med._id} className="hover:bg-blue-50/30 transition-colors group">
+                    
+                    {/* Image Column */}
+                    <td className="p-4 pl-6 md:pl-8 align-middle">
+                      <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shadow-sm shrink-0">
+                        {med.image_url ? (
+                          <a href={`http://localhost:3000${med.image_url}`} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
+                            <img 
+                              src={`http://localhost:3000${med.image_url}`} 
+                              alt="Medicine Thumbnail" 
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                            <div className="hidden absolute inset-0 w-full h-full bg-slate-100 flex-col items-center justify-center text-slate-400">
+                               <FileImage size={20} />
+                            </div>
+                          </a>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-300">
+                            <FileImage size={20} />
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Medicine Name Column */}
+                    <td className="p-4 align-middle">
+                      <div className="flex flex-col">
+                        {med.medicine_name ? (
+                          <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{med.medicine_name}</span>
+                        ) : (
+                          <span className="font-medium text-slate-400 italic">Not extracted</span>
+                        )}
+                        <span className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider flex items-center gap-1">
+                          ID: {med._id.substring(med._id.length - 6)}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Batch & Expiry Stack */}
+                    <td className="p-4 align-middle">
+                      <div className="flex flex-col gap-2">
+                         <div className="flex items-center gap-2">
+                            <Hash size={14} className="text-slate-400" />
+                            <span className="text-sm font-semibold text-slate-700">{med.batch_number || <span className="text-slate-300 italic">N/A</span>}</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                            <Calendar size={14} className="text-slate-400" />
+                            <span className="text-sm font-semibold text-slate-700">{med.expiry_date || <span className="text-slate-300 italic">N/A</span>}</span>
+                         </div>
+                      </div>
+                    </td>
+
+                    {/* Price Column */}
+                    <td className="p-4 align-middle">
+                      {med.price ? (
+                         <span className="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md shadow-sm">
+                           <span className="text-emerald-500 text-xs">₹</span>
+                           {med.price}
+                         </span>
+                      ) : (
+                         <span className="text-slate-400 italic font-medium text-sm">N/A</span>
+                      )}
+                    </td>
+
+                    {/* Status & Date Column */}
+                    <td className="p-4 pr-6 md:pr-8 align-middle text-right">
+                      <div className="flex flex-col items-end gap-1.5">
+                        <StatusBadge status={med.extraction_status} />
+                        <span className="text-xs font-semibold text-slate-400">
+                          {format(new Date(med.createdAt), 'MMM dd, yyyy • HH:mm')}
+                        </span>
+                      </div>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Premium Pagination Control */}
+          {totalPages > 1 && (
+            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm font-medium text-slate-500">
+                Showing <span className="text-slate-900 font-bold">{indexOfFirstRecord + 1}</span> to <span className="text-slate-900 font-bold">{Math.min(indexOfLastRecord, filteredMedicines.length)}</span> of <span className="text-slate-900 font-bold">{filteredMedicines.length}</span> records
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                
+                <div className="flex items-center gap-1.5">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => paginate(i + 1)}
+                      className={`w-10 h-10 rounded-lg text-sm font-bold transition-all shadow-sm
+                        ${currentPage === i + 1 
+                          ? 'bg-blue-600 text-white border border-blue-600 ring-4 ring-blue-500/10' 
+                          : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'}
+                      `}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
