@@ -24,10 +24,11 @@ const StatusBadge = ({ status }) => {
 const MedicineTable = ({ medicines, loading }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredMedicines = medicines.filter(med => 
-    med.medicine_name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    med.batch_number?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMedicines = medicines.filter(med => {
+    const nameMatch = (med.medicine_name || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const batchMatch = (med.batch_number || '').toLowerCase().includes(searchTerm.toLowerCase());
+    return nameMatch || batchMatch;
+  });
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden ring-1 ring-slate-100 flex flex-col">

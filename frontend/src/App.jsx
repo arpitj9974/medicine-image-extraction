@@ -84,18 +84,18 @@ function App() {
   }, [medicinesList]);
 
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen pb-20 bg-slate-50/50">
       <Toaster position="top-right" richColors />
       
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         
         {/* Top Summary Stats */}
         <StatsRow {...stats} />
 
         {/* Core Workspace Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           
           {/* Left Column: Upload */}
           <section className="flex flex-col h-full">
