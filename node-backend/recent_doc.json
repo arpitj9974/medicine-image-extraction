@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "69be371134b7aa1e3f9cb9d0",
+    "medicine_name": null,
+    "expiry_date": null,
+    "batch_number": null,
+    "price": null,
+    "image_url": "/uploads/1774073615765-Screenshot 2026-03-21 114313.png",
+    "raw_ai_response": {
+      "status": "error",
+      "data": null,
+      "message": "Extraction failed: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
+      "warning": null,
+      "raw_response": null
+    },
+    "extraction_status": "failed",
+    "error_message": "Extraction failed: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
+    "createdAt": "2026-03-21T06:13:37.009Z",
+    "updatedAt": "2026-03-21T06:13:37.009Z",
+    "__v": 0
+  }
+]

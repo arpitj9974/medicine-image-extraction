@@ -58,8 +58,8 @@ async def extract_from_image(image_bytes: bytes) -> str:
     # Convert raw bytes to a PIL Image (Gemini SDK expects this)
     image = Image.open(io.BytesIO(image_bytes))
 
-    # Use Gemini 1.5 Flash — fast and cost-effective for extraction tasks
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # Use Gemini 2.5 Flash — fast and cost-effective for extraction tasks
+    model = genai.GenerativeModel("gemini-2.5-flash")
 
     # Send image + prompt to Gemini
     response = model.generate_content(
