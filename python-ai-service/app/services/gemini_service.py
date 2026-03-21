@@ -65,8 +65,8 @@ async def extract_from_image(image_bytes: bytes) -> str:
     response = model.generate_content(
         [EXTRACTION_PROMPT, image],
         generation_config=genai.types.GenerationConfig(
-            temperature=0.1,  # Low temperature = more deterministic, less creative
-            max_output_tokens=500,  # We only need a small JSON, not an essay
+            temperature=0.0,  # Zero temperature for strictly deterministic extraction
+            response_mime_type="application/json",  # Force native JSON output from Gemini
         ),
     )
 
