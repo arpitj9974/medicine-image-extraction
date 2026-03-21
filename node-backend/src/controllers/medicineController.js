@@ -108,15 +108,9 @@ const uploadAndExtract = async (req, res, next) => {
   } catch (error) {
     next(error); // Pass to global error handler
   } finally {
-    // ─── Step 5: Clean up temporary file ───
-    if (filePath && fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-        console.log('🗑️ Temp file cleaned up');
-      } catch (cleanupError) {
-        console.error(`⚠️ Failed to delete temp file: ${cleanupError.message}`);
-      }
-    }
+    // We intentionally keep the image in the /uploads directory 
+    // so that the React frontend can display it in the History Table.
+    console.log('✅ Upload flow completed.');
   }
 };
 
