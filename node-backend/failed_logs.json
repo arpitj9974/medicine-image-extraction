@@ -1,0 +1,52 @@
+[
+  {
+    "error": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Sugar-Free Liquid 100",
+    "raw_ai": {
+      "status": "error",
+      "data": null,
+      "message": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Sugar-Free Liquid 100",
+      "warning": null,
+      "raw_response": "{\"medicine_name\": \"RaniG Sugar-Free Liquid 100"
+    }
+  },
+  {
+    "error": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Sugar-Free Liquid 100ml (",
+    "raw_ai": {
+      "status": "error",
+      "data": null,
+      "message": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Sugar-Free Liquid 100ml (",
+      "warning": null,
+      "raw_response": "{\"medicine_name\": \"RaniG Sugar-Free Liquid 100ml ("
+    }
+  },
+  {
+    "error": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Antacid & Antigastric Liquid",
+    "raw_ai": {
+      "status": "error",
+      "data": null,
+      "message": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Antacid & Antigastric Liquid",
+      "warning": null,
+      "raw_response": "{\"medicine_name\": \"RaniG Antacid & Antigastric Liquid"
+    }
+  },
+  {
+    "error": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Antacid & Antigastric Liquid 10",
+    "raw_ai": {
+      "status": "error",
+      "data": null,
+      "message": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Antacid & Antigastric Liquid 10",
+      "warning": null,
+      "raw_response": "{\"medicine_name\": \"RaniG Antacid & Antigastric Liquid 10"
+    }
+  },
+  {
+    "error": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Antacid & Antigastric Liquid",
+    "raw_ai": {
+      "status": "error",
+      "data": null,
+      "message": "AI returned invalid response: Could not extract valid JSON from AI response. Raw text: {\"medicine_name\": \"RaniG Antacid & Antigastric Liquid",
+      "warning": null,
+      "raw_response": "{\"medicine_name\": \"RaniG Antacid & Antigastric Liquid"
+    }
+  }
+]
