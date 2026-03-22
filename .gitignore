@@ -1,0 +1,22 @@
+# Local dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# Build artifacts
+dist/
+
+# Logs
+*.log
+vite_log.txt
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Project-specific local files
+start.bat
+context.md
+frontend_context.md
