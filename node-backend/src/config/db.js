@@ -11,11 +11,15 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
+    if (!process.env.MONGO_URI) {
+      console.warn('⚠️ No MONGO_URI found. Running in "No-Database" mode.');
+      return;
+    }
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    process.exit(1); // Stop the server — no point running without a database
+    console.warn(`⚠️ MongoDB Connection Failed: ${error.message}`);
+    console.warn('🚀 App will continue running in "No-Database" mode (records will not be saved).');
   }
 };
 

@@ -66,44 +66,52 @@ const uploadAndExtract = async (req, res, next) => {
       });
     }
 
-    // ─── Step 3: Save to MongoDB ───
+    // ─── Step 3: Save to MongoDB (Optional) ───
     console.log(`📊 Extraction status: ${extractionResult.status}`);
+    let medicineRecord = null;
 
-    const medicineRecord = await Medicine.create({
-      medicine_name: extractionResult.data?.medicine_name || null,
-      expiry_date: extractionResult.data?.expiry_date || null,
-      batch_number: extractionResult.data?.batch_number || null,
-      price: extractionResult.data?.price || null,
-      image_url: imageUrl,
-      raw_ai_response: extractionResult,
-      extraction_status: extractionResult.status === 'error' ? 'failed' : extractionResult.status,
-      error_message: extractionResult.message || null,
-    });
-
-    console.log(`✅ Saved to MongoDB: ${medicineRecord._id}`);
+    try {
+      if (require('mongoose').connection.readyState === 1) {
+        medicineRecord = await Medicine.create({
+          medicine_name: extractionResult.data?.medicine_name || null,
+          expiry_date: extractionResult.data?.expiry_date || null,
+          batch_number: extractionResult.data?.batch_number || null,
+          price: extractionResult.data?.price || null,
+          image_url: imageUrl,
+          raw_ai_response: extractionResult,
+          extraction_status: extractionResult.status === 'error' ? 'failed' : extractionResult.status,
+          error_message: extractionResult.message || null,
+        });
+        console.log(`✅ Saved to MongoDB: ${medicineRecord._id}`);
+      } else {
+        console.warn('⚠️ Skipping database save (not connected).');
+      }
+    } catch (dbError) {
+      console.warn(`⚠️ Failed to save record: ${dbError.message}`);
+    }
 
     // ─── Step 4: Send Response ───
     const statusCode = extractionResult.status === 'success' ? 201 : 200;
 
     return res.status(statusCode).json({
       success: true,
-      message:
-        extractionResult.status === 'success'
-          ? 'Medicine data extracted and saved successfully'
+      message: extractionResult.status === 'success'
+          ? 'Medicine data extracted successfully'
           : extractionResult.status === 'partial'
           ? 'Partial extraction — some fields could not be read'
           : 'Extraction completed with issues',
       data: {
-        _id: medicineRecord._id,
-        medicine_name: medicineRecord.medicine_name,
-        expiry_date: medicineRecord.expiry_date,
-        batch_number: medicineRecord.batch_number,
-        price: medicineRecord.price,
-        extraction_status: medicineRecord.extraction_status,
-        image_url: medicineRecord.image_url,
-        createdAt: medicineRecord.createdAt,
+        _id: medicineRecord?._id || `temp_${Date.now()}`,
+        medicine_name: medicineRecord?.medicine_name || extractionResult.data?.medicine_name || null,
+        expiry_date: medicineRecord?.expiry_date || extractionResult.data?.expiry_date || null,
+        batch_number: medicineRecord?.batch_number || extractionResult.data?.batch_number || null,
+        price: medicineRecord?.price || extractionResult.data?.price || null,
+        extraction_status: medicineRecord?.extraction_status || extractionResult.status,
+        image_url: medicineRecord?.image_url || imageUrl,
+        createdAt: medicineRecord?.createdAt || new Date(),
       },
       warning: extractionResult.warning || undefined,
+      db_status: medicineRecord ? 'saved' : 'not_saved'
     });
   } catch (error) {
     next(error); // Pass to global error handler
