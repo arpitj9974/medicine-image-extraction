@@ -5,6 +5,7 @@ import StatsRow from './components/StatsRow';
 import UploadCard from './components/UploadCard';
 import ResultCard from './components/ResultCard';
 import MedicineTable from './components/MedicineTable';
+import AnalyticsSection from './components/AnalyticsSection';
 import { medicineService } from './services/api';
 
 function App() {
@@ -84,21 +85,19 @@ function App() {
   }, [medicinesList]);
 
   return (
-    <div className="min-h-screen pb-20 bg-slate-50/50">
+    <div className="min-h-screen pb-20 bg-app-bg text-app-textMain">
       <Toaster position="top-right" richColors />
       
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
-        {/* Top Summary Stats */}
+        {/* Stats Row */}
         <StatsRow {...stats} />
 
-        {/* Core Workspace Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          
-          {/* Left Column: Upload */}
-          <section className="flex flex-col h-full">
+        {/* Upload + Result — 5:7 split matching Stitch */}
+        <section aria-label="Upload and Results" className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 flex flex-col">
             <UploadCard 
               file={file} 
               setFile={setFile} 
@@ -106,25 +105,23 @@ function App() {
               onUpload={handleUpload} 
               isLoading={isUploading} 
             />
-          </section>
-
-          {/* Right Column: Result */}
-          <section className="flex flex-col h-full">
+          </div>
+          <div className="lg:col-span-7 flex flex-col">
             <ResultCard 
               result={result} 
               isWaiting={isUploading} 
             />
-          </section>
-
-        </div>
-
-        {/* Bottom Workspace: History Table */}
-        <section>
-          <MedicineTable 
-            medicines={medicinesList} 
-            loading={isFetchingList} 
-          />
+          </div>
         </section>
+
+        {/* Analytics Visualization */}
+        <AnalyticsSection medicines={medicinesList} />
+
+        {/* Records Table */}
+        <MedicineTable 
+          medicines={medicinesList} 
+          loading={isFetchingList} 
+        />
 
       </main>
     </div>

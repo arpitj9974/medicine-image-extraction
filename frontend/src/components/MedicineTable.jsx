@@ -1,23 +1,29 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Search, CheckCircle2, AlertTriangle, AlertCircle, FileImage, ExternalLink, Calendar, Hash, ChevronLeft, ChevronRight } from 'lucide-react';
 import Loader from './Loader';
 
 const StatusBadge = ({ status }) => {
-  const configs = {
-    success: { icon: CheckCircle2, bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200/60', label: 'Success' },
-    partial: { icon: AlertTriangle, bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200/60', label: 'Partial' },
-    failed: { icon: AlertCircle, bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200/60', label: 'Failed' },
-  };
-  
-  const config = configs[status] || configs.failed;
-  const Icon = config.icon;
+  if (!status) return null;
+  const isSuccess = status === 'success';
+  const isPartial = status === 'partial';
 
   return (
-    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${config.bg} ${config.text} border ${config.border} rounded-md text-xs font-bold uppercase tracking-wider`}>
-      <Icon size={12} strokeWidth={2.5}/>
-      {config.label}
-    </div>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border
+      ${isSuccess ? 'bg-app-successBg text-app-success border-app-success/20' :
+        isPartial ? 'bg-app-warningBg text-app-warning border-app-warning/20' :
+        'bg-red-500/10 text-red-400 border-red-500/20'}
+    `}>
+      {isSuccess ? (
+        <svg className="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+        </svg>
+      ) : (
+        <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+      )}
+      {status.toUpperCase()}
+    </span>
   );
 };
 
@@ -26,14 +32,12 @@ const MedicineTable = ({ medicines, loading }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
-  // ─── Search Logic ───
   const filteredMedicines = medicines.filter(med => {
     const nameMatch = (med.medicine_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     const batchMatch = (med.batch_number || '').toLowerCase().includes(searchTerm.toLowerCase());
     return nameMatch || batchMatch;
   });
 
-  // ─── Pagination Logic ───
   const totalPages = Math.ceil(filteredMedicines.length / recordsPerPage);
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -41,139 +45,127 @@ const MedicineTable = ({ medicines, loading }) => {
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
-    // Smooth scroll to top of table on page change
     window.scrollTo({ top: document.getElementById('saved-records')?.offsetTop - 100, behavior: 'smooth' });
   };
 
   return (
-    <div id="saved-records" className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden ring-1 ring-slate-100 flex flex-col scroll-mt-24">
-      
-      {/* Premium Table Header Area */}
-      <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 bg-white">
+    <section id="saved-records" aria-label="Saved Records" className="bg-app-surface rounded-xl border border-app-border shadow-sm flex flex-col scroll-mt-24">
+
+      {/* Header */}
+      <div className="p-6 border-b border-app-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Saved Records</h2>
-          <p className="text-sm font-medium text-slate-500 mt-1">History of all extracted medicines</p>
+          <h2 className="text-xl font-bold text-white">Saved Records</h2>
+          <p className="text-sm text-app-textMuted mt-1">History of all extracted medicines</p>
         </div>
-        
-        <div className="relative w-full sm:w-72 group">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <Search size={18} className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+        <div className="relative w-full sm:w-80">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-4 w-4 text-app-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+            </svg>
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm font-medium"
+            className="block w-full pl-10 pr-3 py-2 border border-app-border rounded-lg leading-5 bg-app-bg text-app-textMain placeholder-app-textMuted focus:outline-none focus:ring-1 focus:ring-app-primary focus:border-app-primary sm:text-sm transition-colors"
             placeholder="Search by name or batch..."
             value={searchTerm}
-            onChange={(e) => {
-               setSearchTerm(e.target.value);
-               setCurrentPage(1); // Reset to page 1 on search
-            }}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
           />
         </div>
       </div>
 
+      {/* Body */}
       {loading ? (
         <div className="p-16 flex justify-center">
           <Loader size="md" text="Loading historical records..." />
         </div>
       ) : filteredMedicines.length === 0 ? (
-        <div className="p-20 text-center flex flex-col items-center justify-center bg-slate-50/50">
-          <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-4">
-             <Search size={28} className="text-slate-300" />
+        <div className="p-20 text-center flex flex-col items-center justify-center">
+          <div className="w-14 h-14 bg-app-surfaceHover rounded-xl flex items-center justify-center mb-4">
+            <svg className="h-7 w-7 text-app-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+            </svg>
           </div>
-          <p className="text-slate-500 font-medium">No records found matching your search.</p>
+          <p className="text-app-textMuted font-medium">No records found matching your search.</p>
         </div>
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                  <th className="p-4 pl-6 md:pl-8 font-semibold w-24">Image</th>
-                  <th className="p-4 font-semibold min-w-[200px]">Medicine Name</th>
-                  <th className="p-4 font-semibold min-w-[160px]">Batch & Expiry</th>
-                  <th className="p-4 font-semibold">Price</th>
-                  <th className="p-4 pr-6 md:pr-8 font-semibold text-right">Status & Date</th>
+            <table className="min-w-full divide-y divide-app-border text-sm">
+              <thead className="bg-app-bg/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-app-textMuted uppercase tracking-wider w-16" scope="col">Image</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-app-textMuted uppercase tracking-wider" scope="col">Medicine Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-app-textMuted uppercase tracking-wider" scope="col">Batch & Expiry</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-app-textMuted uppercase tracking-wider" scope="col">Price</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-app-textMuted uppercase tracking-wider" scope="col">Status & Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y divide-app-border bg-app-surface">
                 {currentRecords.map((med) => (
-                  <tr key={med._id} className="hover:bg-blue-50/30 transition-colors group">
-                    
-                    {/* Image Column */}
-                    <td className="p-4 pl-6 md:pl-8 align-middle">
-                      <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shadow-sm shrink-0">
+                  <tr key={med._id} className="hover:bg-app-surfaceHover/30 transition-colors">
+
+                    {/* Image */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-10 w-10 rounded bg-app-bg border border-app-border overflow-hidden flex items-center justify-center">
                         {med.image_url ? (
                           <a href={`http://localhost:3000${med.image_url}`} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
-                            <img 
-                              src={`http://localhost:3000${med.image_url}`} 
-                              alt="Medicine Thumbnail" 
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
+                            <img
+                              src={`http://localhost:3000${med.image_url}`}
+                              alt="Medicine Thumbnail"
+                              className="h-full w-full object-cover"
+                              onError={(e) => { e.target.style.display = 'none'; }}
                             />
-                            <div className="hidden absolute inset-0 w-full h-full bg-slate-100 flex-col items-center justify-center text-slate-400">
-                               <FileImage size={20} />
-                            </div>
                           </a>
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-300">
-                            <FileImage size={20} />
-                          </div>
+                          <svg className="h-5 w-5 text-app-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                          </svg>
                         )}
                       </div>
                     </td>
 
-                    {/* Medicine Name Column */}
-                    <td className="p-4 align-middle">
-                      <div className="flex flex-col">
-                        {med.medicine_name ? (
-                          <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{med.medicine_name}</span>
-                        ) : (
-                          <span className="font-medium text-slate-400 italic">Not extracted</span>
-                        )}
-                        <span className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-wider flex items-center gap-1">
-                          ID: {med._id.substring(med._id.length - 6)}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Batch & Expiry Stack */}
-                    <td className="p-4 align-middle">
-                      <div className="flex flex-col gap-2">
-                         <div className="flex items-center gap-2">
-                            <Hash size={14} className="text-slate-400" />
-                            <span className="text-sm font-semibold text-slate-700">{med.batch_number || <span className="text-slate-300 italic">N/A</span>}</span>
-                         </div>
-                         <div className="flex items-center gap-2">
-                            <Calendar size={14} className="text-slate-400" />
-                            <span className="text-sm font-semibold text-slate-700">{med.expiry_date || <span className="text-slate-300 italic">N/A</span>}</span>
-                         </div>
-                      </div>
-                    </td>
-
-                    {/* Price Column */}
-                    <td className="p-4 align-middle">
-                      {med.price ? (
-                         <span className="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md shadow-sm">
-                           <span className="text-emerald-500 text-xs">₹</span>
-                           {med.price}
-                         </span>
+                    {/* Name */}
+                    <td className="px-6 py-4">
+                      {med.medicine_name ? (
+                        <div className="font-medium text-white line-clamp-2">{med.medicine_name}</div>
                       ) : (
-                         <span className="text-slate-400 italic font-medium text-sm">N/A</span>
+                        <div className="text-app-textMuted italic">Not extracted</div>
+                      )}
+                      <div className="text-xs text-app-textMuted mt-1">ID: {med._id.slice(-6).toUpperCase()}</div>
+                    </td>
+
+                    {/* Batch & Expiry */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-app-textMain mb-1">
+                        <span className="text-app-textMuted mr-2 w-4">#</span>
+                        {med.batch_number || <span className="text-app-textMuted italic">N/A</span>}
+                      </div>
+                      <div className="flex items-center text-sm text-app-textMuted">
+                        <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                        </svg>
+                        {med.expiry_date || <span className="italic">N/A</span>}
+                      </div>
+                    </td>
+
+                    {/* Price */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {med.price ? (
+                        <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-md bg-app-successBg text-app-success border border-app-success/20">
+                          ₹ {med.price}
+                        </span>
+                      ) : (
+                        <span className="text-app-textMuted italic text-sm">N/A</span>
                       )}
                     </td>
 
-                    {/* Status & Date Column */}
-                    <td className="p-4 pr-6 md:pr-8 align-middle text-right">
-                      <div className="flex flex-col items-end gap-1.5">
+                    {/* Status & Date */}
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex flex-col items-end gap-1">
                         <StatusBadge status={med.extraction_status} />
-                        <span className="text-xs font-semibold text-slate-400">
+                        <div className="text-xs text-app-textMuted">
                           {format(new Date(med.createdAt), 'MMM dd, yyyy • HH:mm')}
-                        </span>
+                        </div>
                       </div>
                     </td>
 
@@ -183,51 +175,52 @@ const MedicineTable = ({ medicines, loading }) => {
             </table>
           </div>
 
-          {/* Premium Pagination Control */}
-          {totalPages > 1 && (
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-sm font-medium text-slate-500">
-                Showing <span className="text-slate-900 font-bold">{indexOfFirstRecord + 1}</span> to <span className="text-slate-900 font-bold">{Math.min(indexOfLastRecord, filteredMedicines.length)}</span> of <span className="text-slate-900 font-bold">{filteredMedicines.length}</span> records
-              </p>
-              
-              <div className="flex items-center gap-2">
+          {/* Pagination */}
+          <div className="px-6 py-4 border-t border-app-border flex items-center justify-between">
+            <div className="text-sm text-app-textMuted">
+              Showing <span className="font-medium text-white">{indexOfFirstRecord + 1}</span> to{' '}
+              <span className="font-medium text-white">{Math.min(indexOfLastRecord, filteredMedicines.length)}</span> of{' '}
+              <span className="font-medium text-white">{filteredMedicines.length}</span> records
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center space-x-2">
                 <button
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                  className="w-8 h-8 flex items-center justify-center rounded bg-app-bg border border-app-border text-app-textMuted hover:text-white hover:bg-app-surfaceHover disabled:opacity-50 transition-colors"
                 >
-                  <ChevronLeft size={20} />
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                  </svg>
                 </button>
-                
-                <div className="flex items-center gap-1.5">
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i + 1}
-                      onClick={() => paginate(i + 1)}
-                      className={`w-10 h-10 rounded-lg text-sm font-bold transition-all shadow-sm
-                        ${currentPage === i + 1 
-                          ? 'bg-blue-600 text-white border border-blue-600 ring-4 ring-blue-500/10' 
-                          : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'}
-                      `}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-                
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => paginate(i + 1)}
+                    className={`w-8 h-8 flex items-center justify-center rounded font-medium transition-colors text-sm
+                      ${currentPage === i + 1
+                        ? 'bg-app-primary text-white'
+                        : 'bg-app-bg border border-app-border text-app-textMuted hover:text-white hover:bg-app-surfaceHover'}
+                    `}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                  className="w-8 h-8 flex items-center justify-center rounded bg-app-bg border border-app-border text-app-textMuted hover:text-white hover:bg-app-surfaceHover disabled:opacity-50 transition-colors"
                 >
-                  <ChevronRight size={20} />
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                  </svg>
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
-    </div>
+    </section>
   );
 };
 

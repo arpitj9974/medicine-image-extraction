@@ -1,26 +1,28 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, Image as ImageIcon, X, FileImage, ExternalLink } from 'lucide-react';
-import Loader from './Loader';
 
 function ImagePreview({ file, previewUrl, onRemove }) {
   if (!previewUrl) return null;
   return (
-    <div className="relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-50 group transition-all h-full w-full flex items-center justify-center p-2">
-      <img src={previewUrl} alt="Preview" className="max-h-[300px] w-auto object-contain rounded-lg shadow-sm" />
-      <button 
+    <div className="relative rounded-xl overflow-hidden border border-app-border bg-app-bg group transition-all h-full w-full flex items-center justify-center p-2">
+      <img src={previewUrl} alt="Preview" className="max-h-[280px] w-auto object-contain rounded-lg" />
+      <button
         onClick={(e) => { e.stopPropagation(); onRemove(); }}
-        className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-600 p-2 rounded-full shadow-md hover:bg-red-50 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 ring-1 ring-slate-200"
+        className="absolute top-3 right-3 bg-app-surfaceHover text-app-textMuted p-1.5 rounded-full hover:bg-red-500/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 border border-app-border"
       >
-        <X size={18} />
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+        </svg>
       </button>
-      <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-lg flex items-center gap-3 border border-slate-200 shadow-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-        <div className="bg-blue-100 text-blue-600 p-1.5 rounded-md shrink-0">
-          <FileImage size={18} />
+      <div className="absolute bottom-3 left-3 right-3 bg-app-surface/90 backdrop-blur-sm p-2.5 rounded-lg flex items-center gap-2 border border-app-border opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="bg-app-surfaceHover text-app-primary p-1.5 rounded-md shrink-0">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+          </svg>
         </div>
         <div className="overflow-hidden flex-1">
-          <p className="text-sm font-semibold text-slate-800 truncate">{file.name}</p>
-          <p className="text-xs text-slate-500 font-medium">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+          <p className="text-xs font-semibold text-white truncate">{file.name}</p>
+          <p className="text-xs text-app-textMuted">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
         </div>
       </div>
     </div>
@@ -47,107 +49,88 @@ const UploadCard = ({ file, setFile, previewUrl, onUpload, isLoading }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/jpeg': [], 'image/png': [], 'image/webp': [] },
-    maxSize: 5 * 1024 * 1024, // 5MB limit
+    maxSize: 5 * 1024 * 1024,
     multiple: false,
     disabled: !!file || isLoading,
   });
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full ring-1 ring-slate-100">
-      
-      {/* Premium Header */}
-      <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Upload Medicine Image</h2>
-        <p className="text-sm font-medium text-slate-500 mt-1 focus:outline-none">Extract details from packaging</p>
-      </div>
+    <div className="bg-app-surface rounded-xl border border-app-border p-6 shadow-sm flex flex-col h-full">
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-xl flex-1 flex flex-col items-center justify-center p-8 text-center transition-colors cursor-pointer group
+          ${isDragActive ? 'border-app-primary bg-app-primary/5' : ''}
+          ${!file && !isDragActive ? 'border-app-border hover:bg-app-surfaceHover/50' : ''}
+          ${file ? 'border-transparent bg-transparent p-2 cursor-default' : ''}
+        `}
+        style={{ minHeight: '320px' }}
+      >
+        <input {...getInputProps()} />
 
-      <div className="p-6 flex-1 flex flex-col relative w-full h-full min-h-[400px]">
-        
-        {/* Dropzone Area */}
-        <div 
-          {...getRootProps()} 
-          className={`flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl transition-all duration-300 relative overflow-hidden group 
-            ${isDragActive ? 'border-blue-400 bg-blue-50 ring-4 ring-blue-500/10' : ''} 
-            ${!file && !isDragActive ? 'border-indigo-100 hover:border-indigo-300 hover:bg-slate-50 cursor-pointer bg-slate-50/30' : ''}
-            ${file ? 'border-transparent bg-transparent p-0 cursor-default' : ''}
-          `}
-          style={{ minHeight: '320px' }}
-        >
-          <input {...getInputProps()} />
-
-          {!file ? (
-            <div className="text-center flex flex-col items-center max-w-sm px-6">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform duration-500 shadow-sm
-                ${isDragActive ? 'bg-blue-100 text-blue-600 scale-110' : 'bg-white text-indigo-500 shadow-md group-hover:scale-110 ring-1 ring-slate-100'}
-              `}>
-                <UploadCloud size={36} strokeWidth={2} className={isDragActive ? 'animate-bounce' : ''} />
-              </div>
-              
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Drag & drop image here</h3>
-              
-              <div className="flex items-center gap-2 mb-8 text-slate-400 font-medium">
-                <span className="h-px bg-slate-200 flex-1"></span>
-                <span className="text-sm uppercase tracking-wider">or</span>
-                <span className="h-px bg-slate-200 flex-1"></span>
-              </div>
-              
-              <button 
-                type="button"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm shadow-indigo-600/20 transition-all hover:shadow-md hover:-translate-y-0.5"
-              >
-                Browse directory
-              </button>
-              
-              <p className="text-xs font-semibold tracking-wide text-slate-400 uppercase mt-8 bg-slate-100 py-1.5 px-3 rounded-full">
-                JPG, PNG. Max 5MB.
-              </p>
-              
-              {errorStatus && (
-                <div className="mt-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-lg text-sm font-medium w-full animate-pulse">
-                  {errorStatus}
-                </div>
-              )}
+        {!file ? (
+          <>
+            <div className="w-16 h-16 bg-app-surfaceHover rounded-full flex items-center justify-center mb-6 group-hover:bg-app-border transition-colors">
+              <svg className="h-8 w-8 text-app-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
             </div>
-          ) : (
-            <ImagePreview 
-              file={file} 
-              previewUrl={previewUrl} 
-              onRemove={() => setFile(null)} 
-            />
-          )}
 
-          {/* Loader Overlay */}
-          {isLoading && (
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-md z-20 flex flex-col items-center justify-center rounded-2xl">
-               <Loader isLoading={true} size="lg" text="Analyzing image via Gemini AI..." />
-            </div>
-          )}
-        </div>
+            <h2 className="text-xl font-bold text-white mb-2">Drop medicine image here</h2>
+            <p className="text-sm text-app-textMuted mb-6">Clear photos of packaging work best</p>
 
-        {/* Action Button */}
-        {file && !isLoading && (
-          <div className="mt-6">
-            <button 
-              onClick={onUpload}
-              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3.5 px-6 rounded-xl shadow-md shadow-blue-500/25 transition-all text-lg flex items-center justify-center gap-2 hover:shadow-lg hover:-translate-y-0.5"
+            <button
+              type="button"
+              className="bg-app-primary hover:bg-app-primaryHover text-white font-medium py-2.5 px-8 rounded-lg shadow-sm transition-colors mb-6 w-full sm:w-auto"
             >
-              <UploadCloud size={20} className="mr-1" />
-              Extract Data Now
+              Browse Files
             </button>
-          </div>
-        )}
-        
-        {/* Subtle helper link */}
-        {!file && (
-          <div className="absolute bottom-4 left-0 right-0 text-center">
-            <a href="#" className="text-xs font-medium text-slate-400 hover:text-indigo-600 transition-colors flex items-center justify-center gap-1 group">
-              <span>Try a sample image</span>
-              <ExternalLink size={12} className="group-hover:translate-x-0.5 transition-transform" />
-            </a>
-          </div>
+
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
+              {['JPG', 'PNG', 'WEBP', 'PDF'].map(ext => (
+                <span key={ext} className="px-2.5 py-1 rounded bg-app-bg text-xs font-medium text-app-textMuted border border-app-border">
+                  {ext}
+                </span>
+              ))}
+            </div>
+
+            <button className="text-sm text-app-textMuted hover:text-white flex items-center gap-1 transition-colors">
+              Try sample image
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
+            </button>
+
+            {errorStatus && (
+              <div className="mt-4 p-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-sm font-medium w-full">
+                {errorStatus}
+              </div>
+            )}
+          </>
+        ) : (
+          <ImagePreview file={file} previewUrl={previewUrl} onRemove={() => setFile(null)} />
         )}
 
+        {isLoading && (
+          <div className="absolute inset-0 bg-app-bg/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-xl">
+            <div className="w-10 h-10 border-4 border-app-primary border-t-transparent rounded-full animate-spin mb-3"></div>
+            <p className="text-white font-medium text-sm animate-pulse">Analyzing with AI...</p>
+          </div>
+        )}
       </div>
+
+      {file && !isLoading && (
+        <div className="mt-4">
+          <button
+            onClick={onUpload}
+            className="w-full bg-app-primary hover:bg-app-primaryHover text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+            </svg>
+            Extract Data Now
+          </button>
+        </div>
+      )}
     </div>
   );
 };

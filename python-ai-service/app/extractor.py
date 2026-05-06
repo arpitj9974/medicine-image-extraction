@@ -30,6 +30,7 @@ async def extract_medicine_data(image_bytes: bytes) -> ExtractionResponse:
     try:
         # ─── Step 1: Send image to Gemini ───
         raw_text = await extract_from_image(image_bytes)
+        print(f"\n[AI] Raw response from Gemini:\n{raw_text}\n")
 
         # ─── Step 2: Clean the AI response into a Python dict ───
         try:

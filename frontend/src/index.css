@@ -1,9 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased font-sans;
+    font-family: 'Inter', sans-serif;
+    background-color: #0F172A;
+    color: #F8FAFC;
+    @apply antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0F172A; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  ::selection { background: #3B82F6; color: #fff; }
+}
+
+@layer components {
+  /* Legacy glass-card kept for any remaining usage */
+  .glass-card {
+    @apply bg-app-surface border border-app-border shadow-sm;
   }
 }
