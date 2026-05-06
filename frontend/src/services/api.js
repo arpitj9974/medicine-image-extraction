@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-// Connect to the existing Node.js Backend on port 3000
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/medicine';
+// Connect to the backend
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return 'http://localhost:3000/api/medicine';
+  
+  // If the URL doesn't end with /api/medicine, append it
+  return envUrl.endsWith('/api/medicine') ? envUrl : `${envUrl.replace(/\/$/, '')}/api/medicine`;
+};
+
+const API_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_URL,
